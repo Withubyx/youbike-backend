@@ -7,13 +7,13 @@ import nl.novi.youbike_api.model.enums.CountryCode;
 @Embeddable
 public class AddressLocation {
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 30)
     private String street;
 
-    @Column(name = "house_number", nullable = false, length = 20)
+    @Column(name = "house_number", nullable = false, length = 10)
     private String houseNumber;
 
-    @Column(nullable = false, length =20)
+    @Column(nullable = false, length = 20)
     private String city;
 
     @Column(name = "country_code", nullable = false)

@@ -3,9 +3,13 @@ package nl.novi.youbike_api.service;
 import jakarta.transaction.Transactional;
 import nl.novi.youbike_api.dto.CyclistRequestDTO;
 import nl.novi.youbike_api.dto.CyclistResponseDTO;
+import nl.novi.youbike_api.dto.value_object.CityCountryLocationDTO;
+import nl.novi.youbike_api.exception.ResourceNotFoundException;
 import nl.novi.youbike_api.mapper.dto.CyclistDTOMapper;
+import nl.novi.youbike_api.mapper.dto.value_object.CityCountryLocationDTOMapper;
 import nl.novi.youbike_api.model.Cyclist;
 import nl.novi.youbike_api.model.User;
+import nl.novi.youbike_api.model.value_object.CityCountryLocation;
 import nl.novi.youbike_api.repository.CyclistRepository;
 import nl.novi.youbike_api.repository.UserRepository;
 import nl.novi.youbike_api.service.helper.EmailUniqueHelper;
@@ -20,18 +24,20 @@ public class CyclistService {
     private final UserRepository userRepos;
     private final EmailUniqueHelper emailUniqueHelper;
     private final NameUniqueHelper nameUniqueHelper;
+    private final CityCountryLocationDTOMapper cityCountryLocationDTOMapper;
 
     public CyclistService(
             CyclistDTOMapper cyclistDTOMapper,
             CyclistRepository cyclistRepos,
             UserRepository userRepos,
             EmailUniqueHelper emailUniqueHelper,
-            NameUniqueHelper nameUniqueHelper) {
+            NameUniqueHelper nameUniqueHelper, CityCountryLocationDTOMapper cityCountryLocationDTOMapper) {
         this.cyclistDTOMapper = cyclistDTOMapper;
         this.cyclistRepos = cyclistRepos;
         this.userRepos = userRepos;
         this.emailUniqueHelper = emailUniqueHelper;
         this.nameUniqueHelper = nameUniqueHelper;
+        this.cityCountryLocationDTOMapper = cityCountryLocationDTOMapper;
     }
 
     @Transactional
@@ -45,6 +51,45 @@ public class CyclistService {
         user.setCyclist(cyclist);
         userRepos.save(user);
         return cyclistDTOMapper.toDto(cyclist, user);
+    }
+
+   @Transactional
+   public CyclistResponseDTO updateCyclist(int cyclistId, CyclistRequestDTO dto) {
+        Cyclist cyclist = getCyclistByCyclistId(cyclistId);
+        User user = getUserByCyclistId(cyclistId);
+        if (!dto.getEmail().equals(user.getEmail())) {
+            emailUniqueHelper.checkEmailUnique(dto.getEmail().toLowerCase());
+        }
+        if (!dto.getName().equals(cyclist.getName())) {
+            nameUniqueHelper.checkNameUnique(dto.getName().toLowerCase());
+        }
+
+        Cyclist cyclistUpdate = cyclistDTOMapper.toEntity(dto);
+        cyclist.setName(cyclistUpdate.getName());
+        cyclist.setCityCountryLocation(cyclistUpdate.getCityCountryLocation());
+        user.setEmail(dto.getEmail());
+        return cyclistDTOMapper.toDto(cyclist, user);
+    }
+
+   @Transactional
+   public CyclistResponseDTO updateCyclistCityCountryLocation(int cyclistId, CityCountryLocationDTO dto) {
+       Cyclist cyclist = getCyclistByCyclistId(cyclistId);
+       CityCountryLocation cityCountryLocation = cityCountryLocationDTOMapper.toEntity(dto);
+       User user = getUserByCyclistId(cyclistId);
+
+       cyclist.setCityCountryLocation(cityCountryLocation);
+       return cyclistDTOMapper.toDto(cyclist, user);
+    }
+
+
+    // Helpers
+
+    private Cyclist getCyclistByCyclistId(int cyclistId) {
+        return cyclistRepos.findById(cyclistId).orElseThrow(() -> new ResourceNotFoundException("Cyclist " + cyclistId + " does not exist."));
+    }
+
+    private User getUserByCyclistId(int cyclistId) {
+        return userRepos.findByCyclist_Id(cyclistId).orElseThrow(() -> new ResourceNotFoundException("User who is Cyclist " + cyclistId + " does not exist."));
     }
 
 }

@@ -4,12 +4,10 @@ import jakarta.validation.Valid;
 import nl.novi.youbike_api.controller.helper.UriHelper;
 import nl.novi.youbike_api.dto.CyclistRequestDTO;
 import nl.novi.youbike_api.dto.CyclistResponseDTO;
+import nl.novi.youbike_api.dto.value_object.CityCountryLocationDTO;
 import nl.novi.youbike_api.service.CyclistService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -28,5 +26,15 @@ public class CyclistController {
         CyclistResponseDTO responseDTO = cyclistService.createCyclist(dto);
         URI uri = UriHelper.buildUri(responseDTO.getId());
         return ResponseEntity.created(uri).body(responseDTO);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CyclistResponseDTO> updateCyclist(@PathVariable int id, @Valid @RequestBody CyclistRequestDTO dto) {
+        return ResponseEntity.ok(cyclistService.updateCyclist(id, dto));
+    }
+
+    @PatchMapping("/{id}/location")
+    public ResponseEntity<CyclistResponseDTO> updateCyclistCityCountryLocation(@PathVariable int id, @Valid @RequestBody CityCountryLocationDTO dto) {
+        return ResponseEntity.ok(cyclistService.updateCyclistCityCountryLocation(id, dto));
     }
 }

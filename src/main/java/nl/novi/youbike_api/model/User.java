@@ -34,6 +34,7 @@ public class User {
 
     public User(String email) {
         this.email = email;
+        this.emailLowercase = email.toLowerCase();
     }
 
     public Integer getId() {
@@ -50,6 +51,7 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+        this.emailLowercase = email.toLowerCase();
     }
 
     public String getEmailLowercase() {

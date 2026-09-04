@@ -29,6 +29,7 @@ public class BikeCompanyDTOMapper {
         dto.setId(bikeCompany.getId());
         dto.setEmail(user.getEmail());
         dto.setName(bikeCompany.getName());
+        dto.setBikeCompanyType(bikeCompany.getBikeCompanyType());
         dto.setAddressLocation(addressLocationDTOMapper.toDto(bikeCompany.getAddressLocation()));
         return dto;
     }

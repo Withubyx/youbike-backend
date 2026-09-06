@@ -21,6 +21,7 @@ public abstract class BikeRideOrganizer {
 
     public BikeRideOrganizer(String name) {
         this.name = name;
+        this.nameLowercase = name.toLowerCase();
     }
 
     public Integer getId() {
@@ -37,6 +38,7 @@ public abstract class BikeRideOrganizer {
 
     public void setName(String name) {
         this.name = name;
+        this.nameLowercase = name.toLowerCase();
     }
 
     public String getNameLowercase() {

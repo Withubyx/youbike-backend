@@ -109,6 +109,10 @@ public class BikeRide {
         return surfaceTypes;
     }
 
+    public void setSurfaceTypes(Set<SurfaceType> surfaceTypes) {
+        this.surfaceTypes = surfaceTypes;
+    }
+
     public void addSurfaceType(SurfaceType surfaceType) {
         surfaceTypes.add(surfaceType);
     }

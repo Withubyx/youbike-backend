@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/bike-companies")
@@ -36,5 +37,21 @@ public class BikeCompanyController {
     @PatchMapping("/{id}/location")
     public ResponseEntity<BikeCompanyResponseDTO> updateBikeCompanyAddressLocation(@PathVariable int id, @Valid @RequestBody AddressLocationDTO dto) {
         return ResponseEntity.ok(bikeCompanyService.updateBikeCompanyAddressLocation(id, dto));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<BikeCompanyResponseDTO> getBikeCompany(@PathVariable int id) {
+        return ResponseEntity.ok(bikeCompanyService.getBikeCompany(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<BikeCompanyResponseDTO>> getAllBikeCompanies() {
+        return ResponseEntity.ok(bikeCompanyService.getAllBikeCompanies());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBikeCompany(@PathVariable int id) {
+        bikeCompanyService.deleteBikeCompany(id);
+        return ResponseEntity.noContent().build();
     }
 }

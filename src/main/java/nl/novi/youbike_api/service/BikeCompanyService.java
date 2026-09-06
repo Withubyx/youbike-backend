@@ -16,6 +16,9 @@ import nl.novi.youbike_api.service.helper.EmailUniqueHelper;
 import nl.novi.youbike_api.service.helper.NameUniqueHelper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class BikeCompanyService {
 
@@ -80,6 +83,29 @@ public class BikeCompanyService {
 
         bikeCompany.setAddressLocation(addressLocation);
         return bikeCompanyDTOMapper.toDto(bikeCompany, user);
+    }
+
+    public BikeCompanyResponseDTO getBikeCompany(int bikeCompanyId) {
+        return bikeCompanyDTOMapper.toDto(getBikeCompanyByBikeCompanyId(bikeCompanyId), getUserByBikeCompanyId(bikeCompanyId));
+    }
+
+    public List<BikeCompanyResponseDTO> getAllBikeCompanies() {
+        List<BikeCompany> bikeCompanies = bikeCompanyRepos.findAll();
+        List<User> users = bikeCompanies.stream().map(bikeCompany -> getUserByBikeCompanyId(bikeCompany.getId())).toList();
+
+        List<BikeCompanyResponseDTO> dtos = new ArrayList<>();
+        for (int i = 0; i < bikeCompanies.size(); i++) {
+            dtos.add(bikeCompanyDTOMapper.toDto(bikeCompanies.get(i), users.get(i)));
+        }
+        return dtos;
+    }
+
+    public void deleteBikeCompany(int bikeCompanyId) {
+        BikeCompany bikeCompany = getBikeCompanyByBikeCompanyId(bikeCompanyId);
+        User user = getUserByBikeCompanyId(bikeCompanyId);
+
+        user.removeBikeCompany();
+        bikeCompanyRepos.delete(bikeCompany);
     }
 
 

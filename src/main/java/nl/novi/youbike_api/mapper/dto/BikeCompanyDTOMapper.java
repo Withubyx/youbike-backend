@@ -17,11 +17,7 @@ public class BikeCompanyDTOMapper {
     }
 
     public BikeCompany toEntity(BikeCompanyRequestDTO dto) {
-        BikeCompany bikeCompany = new BikeCompany();
-        bikeCompany.setName(dto.getName());
-        bikeCompany.setBikeCompanyType(dto.getBikeCompanyType());
-        bikeCompany.setAddressLocation(addressLocationDTOMapper.toEntity(dto.getAddressLocation()));
-        return bikeCompany;
+        return new BikeCompany(dto.getName(), dto.getBikeCompanyType(),addressLocationDTOMapper.toEntity(dto.getAddressLocation()));
     }
 
     public BikeCompanyResponseDTO toDto(BikeCompany bikeCompany, User user) {

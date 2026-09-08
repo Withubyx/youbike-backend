@@ -5,7 +5,9 @@ import nl.novi.youbike_api.dto.BikeRideResponseDTO;
 import nl.novi.youbike_api.mapper.dto.value_object.AddressLocationDTOMapper;
 import nl.novi.youbike_api.model.BikeRide;
 import nl.novi.youbike_api.model.BikeRideOrganizer;
+import org.springframework.stereotype.Component;
 
+@Component
 public class BikeRideDTOMapper {
 
     private final AddressLocationDTOMapper addressLocationDTOMapper;
@@ -14,6 +16,7 @@ public class BikeRideDTOMapper {
         this.addressLocationDTOMapper = addressLocationDTOMapper;
     }
 
+    // The field organizer is in the constructor of BikeRide (but can later be set to null), set this field in the service layer
     public BikeRide toEntity(BikeRideRequestDTO dto) {
         BikeRide bikeRide = new BikeRide();
         bikeRide.setTitle(dto.getTitle());
@@ -26,7 +29,8 @@ public class BikeRideDTOMapper {
         return bikeRide;
     }
 
-    public BikeRideResponseDTO toDto(BikeRide bikeRide, BikeRideOrganizer bikeRideOrganizer) {
+    // Method for BikeRide which has the organizer field with value null
+    public BikeRideResponseDTO toDto(BikeRide bikeRide) {
         BikeRideResponseDTO dto = new BikeRideResponseDTO();
         dto.setId(bikeRide.getId());
         dto.setTitle(bikeRide.getTitle());
@@ -36,6 +40,11 @@ public class BikeRideDTOMapper {
         dto.setSpeed(bikeRide.getSpeed());
         dto.setSurfaceTypes(bikeRide.getSurfaceTypes());
         dto.setAddressLocation(addressLocationDTOMapper.toDto(bikeRide.getAddressLocation()));
+        return dto;
+    }
+
+    public BikeRideResponseDTO toDto(BikeRide bikeRide, BikeRideOrganizer bikeRideOrganizer) {
+        BikeRideResponseDTO dto = toDto(bikeRide);
         dto.setOrganizerId(bikeRideOrganizer.getId());
         dto.setOrganizerName(bikeRideOrganizer.getName());
         return dto;

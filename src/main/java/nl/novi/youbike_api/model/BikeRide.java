@@ -41,7 +41,7 @@ public class BikeRide {
     @Embedded
     private AddressLocation addressLocation;
 
-    //This field is in the constructor, but can later be set to null
+    // This field is in the constructor, but can later be set to null
     @ManyToOne
     @JoinColumn(name = "organizer_id", nullable = true)
     private BikeRideOrganizer organizer;
@@ -107,6 +107,10 @@ public class BikeRide {
 
     public Set<SurfaceType> getSurfaceTypes() {
         return surfaceTypes;
+    }
+
+    public void setSurfaceTypes(Set<SurfaceType> surfaceTypes) {
+        this.surfaceTypes = surfaceTypes;
     }
 
     public void addSurfaceType(SurfaceType surfaceType) {

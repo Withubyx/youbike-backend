@@ -17,10 +17,7 @@ public class CyclistDTOMapper {
     }
 
     public Cyclist toEntity(CyclistRequestDTO dto) {
-        Cyclist cyclist = new Cyclist();
-        cyclist.setName(dto.getName());
-        cyclist.setCityCountryLocation(cityCountryLocationDTOMapper.toEntity(dto.getCityCountryLocation()));
-        return cyclist;
+        return new Cyclist(dto.getName(), cityCountryLocationDTOMapper.toEntity(dto.getCityCountryLocation()));
     }
 
     public CyclistResponseDTO toDto(Cyclist cyclist, User user) {

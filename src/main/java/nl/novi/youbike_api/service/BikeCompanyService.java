@@ -60,10 +60,10 @@ public class BikeCompanyService {
     public BikeCompanyResponseDTO updateBikeCompany(int bikeCompanyId, BikeCompanyRequestDTO dto) {
         BikeCompany bikeCompany = getBikeCompanyByBikeCompanyId(bikeCompanyId);
         User user = getUserByBikeCompanyId(bikeCompanyId);
-        if (!dto.getEmail().equals(user.getEmail())) {
+        if (!dto.getEmail().toLowerCase().equals(user.getEmailLowercase())) {
             emailUniqueHelper.checkEmailUnique(dto.getEmail().toLowerCase());
         }
-        if (!dto.getName().equals(bikeCompany.getName())) {
+        if (!dto.getName().toLowerCase().equals(bikeCompany.getNameLowercase())) {
             nameUniqueHelper.checkNameUnique(dto.getName().toLowerCase());
         }
 
@@ -100,6 +100,7 @@ public class BikeCompanyService {
         return dtos;
     }
 
+    @Transactional
     public void deleteBikeCompany(int bikeCompanyId) {
         BikeCompany bikeCompany = getBikeCompanyByBikeCompanyId(bikeCompanyId);
         User user = getUserByBikeCompanyId(bikeCompanyId);
@@ -118,5 +119,4 @@ public class BikeCompanyService {
     private User getUserByBikeCompanyId(int bikeCompanyId) {
         return userRepos.findByBikeCompany_Id(bikeCompanyId).orElseThrow(() -> new ResourceNotFoundException("User who is Bike Company " + bikeCompanyId + " does not exist."));
     }
-
 }

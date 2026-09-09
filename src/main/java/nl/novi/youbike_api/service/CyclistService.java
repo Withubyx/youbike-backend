@@ -60,10 +60,10 @@ public class CyclistService {
    public CyclistResponseDTO updateCyclist(int cyclistId, CyclistRequestDTO dto) {
         Cyclist cyclist = getCyclistByCyclistId(cyclistId);
         User user = getUserByCyclistId(cyclistId);
-        if (!dto.getEmail().equals(user.getEmail())) {
+        if (!dto.getEmail().toLowerCase().equals(user.getEmailLowercase())) {
             emailUniqueHelper.checkEmailUnique(dto.getEmail().toLowerCase());
         }
-        if (!dto.getName().equals(cyclist.getName())) {
+        if (!dto.getName().toLowerCase().equals(cyclist.getNameLowercase())) {
             nameUniqueHelper.checkNameUnique(dto.getName().toLowerCase());
         }
 
@@ -99,6 +99,7 @@ public class CyclistService {
         return dtos;
     }
 
+    @Transactional
     public void deleteCyclist(int cyclistId) {
         Cyclist cyclist = getCyclistByCyclistId(cyclistId);
         User user = getUserByCyclistId(cyclistId);
@@ -117,5 +118,4 @@ public class CyclistService {
     private User getUserByCyclistId(int cyclistId) {
         return userRepos.findByCyclist_Id(cyclistId).orElseThrow(() -> new ResourceNotFoundException("User who is Cyclist " + cyclistId + " does not exist."));
     }
-
 }

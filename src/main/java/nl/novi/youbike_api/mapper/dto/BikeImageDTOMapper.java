@@ -10,7 +10,7 @@ public class BikeImageDTOMapper {
     public BikeImageResponseDTO toDto(BikeImage bikeImage, String uri) {
         BikeImageResponseDTO dto = new BikeImageResponseDTO();
         dto.setId(bikeImage.getId());
-        dto.setFileNAme(bikeImage.getFileName());
+        dto.setFileName(bikeImage.getFileName());
         dto.setUri(uri);
         return dto;
     }

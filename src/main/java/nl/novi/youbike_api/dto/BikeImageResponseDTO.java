@@ -7,7 +7,7 @@ public class BikeImageResponseDTO {
     @JsonProperty("bike_image_id")
     private int id;
 
-    private String fileNAme;
+    private String fileName;
 
     private String uri;
 
@@ -19,12 +19,12 @@ public class BikeImageResponseDTO {
         this.id = id;
     }
 
-    public String getFileNAme() {
-        return fileNAme;
+    public String getFileName() {
+        return fileName;
     }
 
-    public void setFileNAme(String fileNAme) {
-        this.fileNAme = fileNAme;
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public String getUri() {

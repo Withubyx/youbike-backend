@@ -31,20 +31,38 @@ public class BikeService {
         this.bikeImageService = bikeImageService;
     }
 
+    // Creates the Bike entity and its BikeImage entity and stores the BikeImage file
     @Transactional
     public BikeResponseDTO createBike(int cyclistId, BikeRequestDTO dto, MultipartFile file) throws IOException {
         Cyclist owner = getCyclistByCyclistId(cyclistId);
 
         String fileName = bikeImageService.storeFile(owner, file);
         BikeImage bikeImage = new BikeImage(fileName);
-        Bike bike = bikeDTOMapper.toEntity(dto, owner, bikeImage);
+        Bike bike = bikeDTOMapper.toEntityForCreate(dto, owner, bikeImage);
         owner.addBike(bike);
         bikeRepos.save(bike);
         return bikeDTOMapper.toDto(bike, owner, bikeImage, getImageUri(bike));
     }
 
+    @Transactional
+    public BikeResponseDTO updateBikeInfo(int bikeId, BikeRequestDTO dto) {
+        Bike bike = getBikeByBikeId(bikeId);
+
+        Bike bikeUpdate = bikeDTOMapper.toEntityForUpdate(dto);
+        bike.setBikeType(bikeUpdate.getBikeType());
+        bike.setBrand(bikeUpdate.getBrand());
+        bike.setModel(bikeUpdate.getModel());
+        bike.setColor(bikeUpdate.getColor());
+        bike.setDescription(bikeUpdate.getDescription());
+        return bikeDTOMapper.toDto(bike, bike.getOwner(), bike.getBikeImage(), getImageUri(bike));
+    }
+
 
     // Helpers
+
+    public Bike getBikeByBikeId(int bikeId) {
+        return bikeRepos.findById(bikeId).orElseThrow(() -> new ResourceNotFoundException("Bike " + bikeId + " does not exist."));
+    }
 
     public Cyclist getCyclistByCyclistId(int cyclistId) {
         return cyclistRepos.findById(cyclistId).orElseThrow(() -> new ResourceNotFoundException("Cyclist " + cyclistId + "does not exist."));

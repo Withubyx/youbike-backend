@@ -29,4 +29,9 @@ public class BikeController {
         URI uri = UriHelper.buildUri("/bikes", responseDTO.getId());
         return ResponseEntity.created(uri).body(responseDTO);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<BikeResponseDTO> updateBikeInfo(@PathVariable int id, @Valid @RequestBody BikeRequestDTO dto) {
+        return ResponseEntity.ok(bikeService.updateBikeInfo(id, dto));
+    }
 }

@@ -16,8 +16,18 @@ public class BikeDTOMapper {
         this.bikeImageDTOMapper = bikeImageDTOMapper;
     }
 
-    public Bike toEntity(BikeRequestDTO dto, Cyclist owner, BikeImage bikeImage) {
+    public Bike toEntityForCreate(BikeRequestDTO dto, Cyclist owner, BikeImage bikeImage) {
         Bike bike = new Bike(dto.getBikeType(), dto.getBrand(), dto.getModel(), owner, bikeImage);
+        bike.setColor(dto.getColor());
+        bike.setDescription(dto.getDescription());
+        return bike;
+    }
+
+    public Bike toEntityForUpdate(BikeRequestDTO dto) {
+        Bike bike = new Bike();
+        bike.setBikeType(dto.getBikeType());
+        bike.setBrand(dto.getBrand());
+        bike.setModel(dto.getModel());
         bike.setColor(dto.getColor());
         bike.setDescription(dto.getDescription());
         return bike;

@@ -15,4 +15,12 @@ public class UriHelper{
                 .buildAndExpand(id)
                 .toUri();
     }
+
+    public static URI buildUri(String uriMiddlePart, Object id) {
+        return ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path(uriMiddlePart + "/{id}")
+                .buildAndExpand(id)
+                .toUri();
+    }
 }

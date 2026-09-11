@@ -21,10 +21,10 @@ public class BikeRideController {
         this.bikeRideService = bikeRideService;
     }
 
-    @PostMapping("/{id}")
+    @PostMapping("/{organizerId}")
     public ResponseEntity<BikeRideResponseDTO> createBikeRide(@PathVariable int organizerId, @Valid @RequestBody BikeRideRequestDTO dto) {
         BikeRideResponseDTO responseDTO = bikeRideService.createBikeRide(organizerId, dto);
-        URI uri = UriHelper.buildUri(responseDTO.getId());
+        URI uri = UriHelper.buildUri("/bike-rides", responseDTO.getId());
         return ResponseEntity.created(uri).body(responseDTO);
     }
 

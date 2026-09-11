@@ -10,6 +10,9 @@ import java.util.List;
 @Table(name = "cyclists")
 public class Cyclist extends BikeRideOrganizer{
 
+    @Column(name = "bike_image_upload_count")
+    private Integer bikeImageUploadCounter;
+
     @Embedded
     private CityCountryLocation cityCountryLocation;
 
@@ -20,7 +23,16 @@ public class Cyclist extends BikeRideOrganizer{
 
     public Cyclist(String name, CityCountryLocation cityCountryLocation) {
         super(name);
+        this.bikeImageUploadCounter = 0;
         this.cityCountryLocation = cityCountryLocation;
+    }
+
+    public Integer getBikeImageUploadCounter() {
+        return bikeImageUploadCounter;
+    }
+
+    public void setBikeImageUploadCounter(Integer bikeImageUploadCount) {
+        this.bikeImageUploadCounter = bikeImageUploadCount;
     }
 
     public CityCountryLocation getCityCountryLocation() {
@@ -51,7 +63,8 @@ public class Cyclist extends BikeRideOrganizer{
     @Override
     public String toString() {
         return "Cyclist{" +
-                "cityCountryLocation=" + cityCountryLocation +
+                "bikeImageUploadCounter=" + bikeImageUploadCounter +
+                ", cityCountryLocation=" + cityCountryLocation +
                 '}';
     }
 }

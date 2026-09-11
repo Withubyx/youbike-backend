@@ -33,4 +33,9 @@ public class ExceptionController {
 
         return ResponseEntity.badRequest().body(errors);
     }
+
+    @ExceptionHandler(ReadFileException.class)
+    public ResponseEntity<String> readFileException(ReadFileException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 }

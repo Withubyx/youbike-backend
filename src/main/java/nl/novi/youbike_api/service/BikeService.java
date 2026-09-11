@@ -12,6 +12,7 @@ import nl.novi.youbike_api.model.Cyclist;
 import nl.novi.youbike_api.model.enums.BikeType;
 import nl.novi.youbike_api.repository.BikeRepository;
 import nl.novi.youbike_api.repository.CyclistRepository;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +22,8 @@ import java.util.List;
 
 @Service
 public class BikeService {
+
+    private static Integer lastRandomBikeIndexNumber = -1;
 
     private final BikeDTOMapper bikeDTOMapper;
     private final BikeRepository bikeRepos;
@@ -66,9 +69,18 @@ public class BikeService {
     }
 
     public BikeResponseDTO getRandomBike() {
+        int newRandomBikeIndexNumber;
         List<Bike> bikes = bikeRepos.findAll();
         if (bikes.isEmpty()) throw new ResourceNotFoundException("No bikes registered.");
-        Bike bike = bikes.get((int) Math.round(Math.random()*(bikes.size()-1)));
+        if (bikes.size() == 1) {
+            lastRandomBikeIndexNumber = 0;
+            Bike bike = bikes.get(0);
+            return bikeDTOMapper.toDto(bike, bike.getOwner(), bike.getBikeImage(), getImageUri(bike));
+        }
+        do {newRandomBikeIndexNumber = (int) Math.round(Math.random()*(bikes.size()-1));
+        } while (lastRandomBikeIndexNumber.equals(newRandomBikeIndexNumber));
+        lastRandomBikeIndexNumber = newRandomBikeIndexNumber;
+        Bike bike = bikes.get(newRandomBikeIndexNumber);
         return bikeDTOMapper.toDto(bike, bike.getOwner(), bike.getBikeImage(), getImageUri(bike));
     }
 
@@ -87,6 +99,18 @@ public class BikeService {
         return returnBikeResponseDTOs(bikes);
     }
 
+    public Resource getBikeImage(int bikeId) {
+        Bike bike = getBikeByBikeId(bikeId);
+        return bikeImageService.downloadFile(bike.getBikeImage().getFileName());
+    }
+
+    @Transactional
+    public void deleteBike(int bikeId) throws IOException {
+        Bike bike = getBikeByBikeId(bikeId);
+
+        bikeRepos.delete(bike);
+        bikeImageService.deleteFile(bike.getBikeImage().getFileName());
+    }
 
 
     // Helpers

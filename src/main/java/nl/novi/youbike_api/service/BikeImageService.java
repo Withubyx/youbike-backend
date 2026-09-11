@@ -1,12 +1,16 @@
 package nl.novi.youbike_api.service;
 
+import nl.novi.youbike_api.exception.ReadFileException;
 import nl.novi.youbike_api.model.Cyclist;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,5 +35,28 @@ public class BikeImageService {
 
         Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
         return fileName;
+    }
+
+    public Resource downloadFile(String fileName) {
+        Path path = fileStoragePath.resolve(fileName);
+
+        Resource resource;
+        try {
+            resource = new UrlResource(path.toUri());
+        } catch (MalformedURLException e) {
+            throw new ReadFileException("Issue in reading the file", e);
+        }
+
+        if(resource.exists()&& resource.isReadable()) {
+            return resource;
+        } else {
+            throw new ReadFileException("the file doesn't exist or not readable");
+        }
+    }
+
+    public void deleteFile(String fileName) throws IOException {
+        Path path = fileStoragePath.resolve(fileName);
+
+        Files.deleteIfExists(path);
     }
 }

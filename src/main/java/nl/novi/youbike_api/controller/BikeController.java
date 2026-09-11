@@ -1,11 +1,14 @@
 package nl.novi.youbike_api.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import nl.novi.youbike_api.controller.helper.UriHelper;
 import nl.novi.youbike_api.dto.BikeRequestDTO;
 import nl.novi.youbike_api.dto.BikeResponseDTO;
 import nl.novi.youbike_api.model.enums.BikeType;
 import nl.novi.youbike_api.service.BikeService;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -55,5 +58,29 @@ public class BikeController {
     @GetMapping
     public ResponseEntity<List<BikeResponseDTO>> getAllBikesByBikeType(@RequestParam(required = false) BikeType type) {
         return ResponseEntity.ok(bikeService.getAllBikesByBikeType(type));
+    }
+
+    @GetMapping("/{id}/images")
+    public ResponseEntity<Resource> getBikeImage(@PathVariable int id, HttpServletRequest request) {
+        Resource resource = bikeService.getBikeImage(id);
+
+        String mimeType;
+        try{
+            mimeType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+        } catch (IOException e) {
+            mimeType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        }
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.parseMediaType(mimeType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline;fileName=" + resource.getFilename())
+                .body(resource);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBike(@PathVariable int id) throws IOException {
+        bikeService.deleteBike(id);
+        return ResponseEntity.noContent().build();
     }
 }

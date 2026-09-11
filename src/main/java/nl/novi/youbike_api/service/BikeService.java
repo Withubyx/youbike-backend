@@ -9,12 +9,15 @@ import nl.novi.youbike_api.mapper.dto.BikeDTOMapper;
 import nl.novi.youbike_api.model.Bike;
 import nl.novi.youbike_api.model.BikeImage;
 import nl.novi.youbike_api.model.Cyclist;
+import nl.novi.youbike_api.model.enums.BikeType;
 import nl.novi.youbike_api.repository.BikeRepository;
 import nl.novi.youbike_api.repository.CyclistRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class BikeService {
@@ -57,6 +60,34 @@ public class BikeService {
         return bikeDTOMapper.toDto(bike, bike.getOwner(), bike.getBikeImage(), getImageUri(bike));
     }
 
+    public BikeResponseDTO getBike(int bikeId) {
+        Bike bike =  getBikeByBikeId(bikeId);
+        return bikeDTOMapper.toDto(bike, bike.getOwner(), bike.getBikeImage(), getImageUri(bike));
+    }
+
+    public BikeResponseDTO getRandomBike() {
+        List<Bike> bikes = bikeRepos.findAll();
+        if (bikes.isEmpty()) throw new ResourceNotFoundException("No bikes registered.");
+        Bike bike = bikes.get((int) Math.round(Math.random()*(bikes.size()-1)));
+        return bikeDTOMapper.toDto(bike, bike.getOwner(), bike.getBikeImage(), getImageUri(bike));
+    }
+
+    public List<BikeResponseDTO> getAllBikesByCyclistId(int cyclistId) {
+        List<Bike> bikes = bikeRepos.findAllByOwner(getCyclistByCyclistId(cyclistId));
+        return returnBikeResponseDTOs(bikes);
+    }
+
+    public List<BikeResponseDTO> getAllBikesByBikeType(BikeType bikeType) {
+        List<Bike> bikes;
+        if (bikeType == null) {
+            bikes = bikeRepos.findAll();
+        } else {
+            bikes = bikeRepos.findByBikeType(bikeType);
+        }
+        return returnBikeResponseDTOs(bikes);
+    }
+
+
 
     // Helpers
 
@@ -69,6 +100,14 @@ public class BikeService {
     }
 
     public String getImageUri(Bike bike) {
-        return UriHelper.buildUri("/bikes", bike.getId()).toString() + "/image";
+        return UriHelper.buildUri("/bikes", bike.getId()) + "/image";
+    }
+
+    public List<BikeResponseDTO> returnBikeResponseDTOs(List<Bike> bikes) {
+        List<BikeResponseDTO> bikesReturned = new ArrayList<>();
+        for (Bike bike : bikes) {
+            bikesReturned.add(bikeDTOMapper.toDto(bike, bike.getOwner(), bike.getBikeImage(), getImageUri(bike)));
+        }
+        return bikesReturned;
     }
 }

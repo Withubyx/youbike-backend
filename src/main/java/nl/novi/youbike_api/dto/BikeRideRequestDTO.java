@@ -11,15 +11,15 @@ import java.util.Set;
 
 public class BikeRideRequestDTO {
 
-    @NotBlank
-    @Size(max = 40)
+    @NotBlank(message = "Insert a title. (required)")
+    @Size(max = 40, message = "Title must be at most 40 characters long.")
     private String title;
 
     @NotNull(message = "Insert a start date and time. (required)")
     @Future(message = "Start date and time must be in the future.")
     private LocalDateTime startDateTime;
 
-    @Size(max = 255)
+    @Size(max = 255, message = "Description must be at most 255 characters long")
     private String description;
 
     @NotNull(message = "Insert a distance. (required)")

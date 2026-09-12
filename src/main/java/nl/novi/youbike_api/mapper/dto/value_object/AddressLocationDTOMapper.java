@@ -4,14 +4,13 @@ import nl.novi.youbike_api.dto.value_object.AddressLocationDTO;
 import nl.novi.youbike_api.model.value_object.AddressLocation;
 import org.springframework.stereotype.Component;
 
-@Component
 public class AddressLocationDTOMapper {
 
-    public AddressLocation toEntity(AddressLocationDTO dto) {
+    public static AddressLocation toEntity(AddressLocationDTO dto) {
         return new AddressLocation(dto.getStreet(), dto.getHouseNumber(), dto.getCity(), dto.getCountryCode());
     }
 
-    public AddressLocationDTO toDto(AddressLocation entity) {
+    public static AddressLocationDTO toDto(AddressLocation entity) {
         var result = new AddressLocationDTO();
         result.setStreet(entity.getStreet());
         result.setHouseNumber(entity.getHouseNumber());

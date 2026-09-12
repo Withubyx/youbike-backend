@@ -5,20 +5,17 @@ import nl.novi.youbike_api.dto.BikeCommentResponseDTO;
 import nl.novi.youbike_api.model.Bike;
 import nl.novi.youbike_api.model.BikeComment;
 import nl.novi.youbike_api.model.Cyclist;
-import org.springframework.stereotype.Component;
 
-@Component
 public class BikeCommentDTOMapper {
 
-    public BikeComment toEntity(BikeCommentRequestDTO dto, Cyclist author, Bike bike) {
+    public static BikeComment toEntity(BikeCommentRequestDTO dto) {
         BikeComment bikeComment = new BikeComment();
         bikeComment.setComment(dto.getComment());
-        bikeComment.setAuthor(author);
-        bikeComment.setBike(bike);
         return bikeComment;
     }
 
-    public BikeCommentResponseDTO toDtoAuthorIsNull(BikeComment bikeComment, Bike bike) {
+    // Method for BikeComment which has the author field with value null
+    public static BikeCommentResponseDTO toDto(BikeComment bikeComment, Bike bike) {
         BikeCommentResponseDTO dto = new BikeCommentResponseDTO();
         dto.setId(bikeComment.getId());
         dto.setComment(bikeComment.getComment());
@@ -28,8 +25,8 @@ public class BikeCommentDTOMapper {
         return dto;
     }
 
-    public BikeCommentResponseDTO toDtoAuthorIsNotNull(BikeComment bikeComment, Bike bike, Cyclist author) {
-        BikeCommentResponseDTO dto = toDtoAuthorIsNull(bikeComment, bike);
+    public static BikeCommentResponseDTO toDto(BikeComment bikeComment, Bike bike, Cyclist author) {
+        BikeCommentResponseDTO dto = toDto(bikeComment, bike);
         dto.setAuthorId(author.getId());
         dto.setAuthorName(author.getName());
         return dto;

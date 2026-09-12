@@ -7,25 +7,18 @@ import nl.novi.youbike_api.model.Cyclist;
 import nl.novi.youbike_api.model.User;
 import org.springframework.stereotype.Component;
 
-@Component
 public class CyclistDTOMapper {
 
-    private final CityCountryLocationDTOMapper cityCountryLocationDTOMapper;
-
-    public CyclistDTOMapper(CityCountryLocationDTOMapper cityCountryLocationDTOMapper) {
-        this.cityCountryLocationDTOMapper = cityCountryLocationDTOMapper;
+    public static Cyclist toEntity(CyclistRequestDTO dto) {
+        return new Cyclist(dto.getName(), CityCountryLocationDTOMapper.toEntity(dto.getCityCountryLocation()));
     }
 
-    public Cyclist toEntity(CyclistRequestDTO dto) {
-        return new Cyclist(dto.getName(), cityCountryLocationDTOMapper.toEntity(dto.getCityCountryLocation()));
-    }
-
-    public CyclistResponseDTO toDto(Cyclist cyclist, User user) {
+    public static CyclistResponseDTO toDto(Cyclist cyclist, User user) {
         CyclistResponseDTO dto = new CyclistResponseDTO();
         dto.setId(cyclist.getId());
         dto.setEmail(user.getEmail());
         dto.setName(cyclist.getName());
-        dto.setCityCountryLocation(cityCountryLocationDTOMapper.toDto(cyclist.getCityCountryLocation()));
+        dto.setCityCountryLocation(CityCountryLocationDTOMapper.toDto(cyclist.getCityCountryLocation()));
         return dto;
     }
 }

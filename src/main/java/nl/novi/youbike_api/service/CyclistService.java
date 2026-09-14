@@ -22,25 +22,20 @@ import java.util.List;
 @Service
 public class CyclistService {
 
-    private final CyclistDTOMapper cyclistDTOMapper;
     private final CyclistRepository cyclistRepos;
     private final UserRepository userRepos;
     private final EmailUniqueHelper emailUniqueHelper;
     private final NameUniqueHelper nameUniqueHelper;
-    private final CityCountryLocationDTOMapper cityCountryLocationDTOMapper;
 
     public CyclistService(
-            CyclistDTOMapper cyclistDTOMapper,
             CyclistRepository cyclistRepos,
             UserRepository userRepos,
             EmailUniqueHelper emailUniqueHelper,
-            NameUniqueHelper nameUniqueHelper, CityCountryLocationDTOMapper cityCountryLocationDTOMapper) {
-        this.cyclistDTOMapper = cyclistDTOMapper;
+            NameUniqueHelper nameUniqueHelper) {
         this.cyclistRepos = cyclistRepos;
         this.userRepos = userRepos;
         this.emailUniqueHelper = emailUniqueHelper;
         this.nameUniqueHelper = nameUniqueHelper;
-        this.cityCountryLocationDTOMapper = cityCountryLocationDTOMapper;
     }
 
     @Transactional
@@ -48,12 +43,12 @@ public class CyclistService {
         emailUniqueHelper.checkEmailUnique(dto.getEmail().toLowerCase());
         nameUniqueHelper.checkNameUnique(dto.getName().toLowerCase());
 
-        Cyclist cyclist = cyclistDTOMapper.toEntity(dto);
+        Cyclist cyclist = CyclistDTOMapper.toEntity(dto);
         User user = new User(dto.getEmail());
         cyclistRepos.save(cyclist);
         user.setCyclist(cyclist);
         userRepos.save(user);
-        return cyclistDTOMapper.toDto(cyclist, user);
+        return CyclistDTOMapper.toDto(cyclist, user);
     }
 
    @Transactional
@@ -67,25 +62,25 @@ public class CyclistService {
             nameUniqueHelper.checkNameUnique(dto.getName().toLowerCase());
         }
 
-        Cyclist cyclistUpdate = cyclistDTOMapper.toEntity(dto);
+        Cyclist cyclistUpdate = CyclistDTOMapper.toEntity(dto);
         cyclist.setName(cyclistUpdate.getName());
         cyclist.setCityCountryLocation(cyclistUpdate.getCityCountryLocation());
         user.setEmail(dto.getEmail());
-        return cyclistDTOMapper.toDto(cyclist, user);
+        return CyclistDTOMapper.toDto(cyclist, user);
     }
 
    @Transactional
    public CyclistResponseDTO updateCyclistCityCountryLocation(int cyclistId, CityCountryLocationDTO dto) {
        Cyclist cyclist = getCyclistByCyclistId(cyclistId);
-       CityCountryLocation cityCountryLocation = cityCountryLocationDTOMapper.toEntity(dto);
+       CityCountryLocation cityCountryLocation = CityCountryLocationDTOMapper.toEntity(dto);
        User user = getUserByCyclistId(cyclistId);
 
        cyclist.setCityCountryLocation(cityCountryLocation);
-       return cyclistDTOMapper.toDto(cyclist, user);
+       return CyclistDTOMapper.toDto(cyclist, user);
     }
 
     public CyclistResponseDTO getCyclist(int cyclistId) {
-        return cyclistDTOMapper.toDto(getCyclistByCyclistId(cyclistId), getUserByCyclistId(cyclistId));
+        return CyclistDTOMapper.toDto(getCyclistByCyclistId(cyclistId), getUserByCyclistId(cyclistId));
     }
 
     public List<CyclistResponseDTO> getAllCyclists() {
@@ -94,7 +89,7 @@ public class CyclistService {
 
         List<CyclistResponseDTO> dtos = new ArrayList<>();
         for (int i = 0; i < cyclists.size(); i++) {
-            dtos.add(cyclistDTOMapper.toDto(cyclists.get(i), users.get(i)));
+            dtos.add(CyclistDTOMapper.toDto(cyclists.get(i), users.get(i)));
         }
         return dtos;
     }

@@ -16,20 +16,17 @@ import java.util.List;
 @Service
 public class BikeRideService {
 
-    private final BikeRideDTOMapper bikeRideDTOMapper;
     private final BikeRideRepository bikeRideRepos;
     private final BikeRideOrganizerRepository bikeRideOrganizerRepos;
 
-    public BikeRideService(BikeRideDTOMapper bikeRideDTOMapper, BikeRideRepository bikeRideRepos, BikeRideOrganizerRepository bikeRideOrganizerRepos) {
-        this.bikeRideDTOMapper = bikeRideDTOMapper;
+    public BikeRideService(BikeRideRepository bikeRideRepos, BikeRideOrganizerRepository bikeRideOrganizerRepos) {
         this.bikeRideRepos = bikeRideRepos;
         this.bikeRideOrganizerRepos = bikeRideOrganizerRepos;
     }
 
     @Transactional
     public BikeRideResponseDTO createBikeRide(int bikeRideOrganizerId, BikeRideRequestDTO dto) {
-        BikeRide bikeRide = bikeRideDTOMapper.toEntity(dto);
-    // The field organizer is in the constructor of BikeRide
+        BikeRide bikeRide = BikeRideDTOMapper.toEntity(dto);
         bikeRide.setOrganizer(bikeRideOrganizerRepos.findById(bikeRideOrganizerId).orElseThrow(() -> new ResourceNotFoundException("Bike ride organizer " + bikeRideOrganizerId + " does not exist.")));
         bikeRideRepos.save(bikeRide);
         return returnBikeRideResponseDTO(bikeRide);
@@ -38,7 +35,7 @@ public class BikeRideService {
     @Transactional
     public BikeRideResponseDTO updateBikeRide(long bikeRideId, BikeRideRequestDTO dto) {
         BikeRide bikeRide = getBikeRideByBikeRideId(bikeRideId);
-        BikeRide bikeRideUpdate = bikeRideDTOMapper.toEntity(dto);
+        BikeRide bikeRideUpdate = BikeRideDTOMapper.toEntity(dto);
         bikeRide.setTitle(bikeRideUpdate.getTitle());
         bikeRide.setStartDateTime(bikeRideUpdate.getStartDateTime());
         bikeRide.setDescription(bikeRideUpdate.getDescription());
@@ -88,9 +85,9 @@ public class BikeRideService {
 
     public BikeRideResponseDTO returnBikeRideResponseDTO(BikeRide bikeRide) {
         if (bikeRide.getOrganizer() == null) {
-            return bikeRideDTOMapper.toDto(bikeRide);
+            return BikeRideDTOMapper.toDto(bikeRide);
         }
-        return bikeRideDTOMapper.toDto(bikeRide, bikeRide.getOrganizer());
+        return BikeRideDTOMapper.toDto(bikeRide, bikeRide.getOrganizer());
     }
 
     public List<BikeRideResponseDTO> returnBikeRideResponseDTOs(List<BikeRide> bikeRides) {

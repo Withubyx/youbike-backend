@@ -25,13 +25,11 @@ public class BikeService {
 
     private static Integer lastRandomBikeIndexNumber = -1;
 
-    private final BikeDTOMapper bikeDTOMapper;
     private final BikeRepository bikeRepos;
     private final CyclistRepository cyclistRepos;
     private final BikeImageService bikeImageService;
 
-    public BikeService(BikeDTOMapper bikeDTOMapper, BikeRepository bikeRepos, CyclistRepository cyclistRepos, BikeImageService bikeImageService) {
-        this.bikeDTOMapper = bikeDTOMapper;
+    public BikeService(BikeRepository bikeRepos, CyclistRepository cyclistRepos, BikeImageService bikeImageService) {
         this.bikeRepos = bikeRepos;
         this.cyclistRepos = cyclistRepos;
         this.bikeImageService = bikeImageService;
@@ -44,28 +42,30 @@ public class BikeService {
 
         String fileName = bikeImageService.storeFile(owner, file);
         BikeImage bikeImage = new BikeImage(fileName);
-        Bike bike = bikeDTOMapper.toEntityForCreate(dto, owner, bikeImage);
+        Bike bike = BikeDTOMapper.toEntity(dto);
+        bike.setOwner(owner);
+        bike.setBikeImage(bikeImage);
         owner.addBike(bike);
         bikeRepos.save(bike);
-        return bikeDTOMapper.toDto(bike, owner, bikeImage, getImageUri(bike));
+        return BikeDTOMapper.toDto(bike, owner, bikeImage, getImageUri(bike));
     }
 
     @Transactional
     public BikeResponseDTO updateBikeInfo(int bikeId, BikeRequestDTO dto) {
         Bike bike = getBikeByBikeId(bikeId);
 
-        Bike bikeUpdate = bikeDTOMapper.toEntityForUpdate(dto);
+        Bike bikeUpdate = BikeDTOMapper.toEntity(dto);
         bike.setBikeType(bikeUpdate.getBikeType());
         bike.setBrand(bikeUpdate.getBrand());
         bike.setModel(bikeUpdate.getModel());
         bike.setColor(bikeUpdate.getColor());
         bike.setDescription(bikeUpdate.getDescription());
-        return bikeDTOMapper.toDto(bike, bike.getOwner(), bike.getBikeImage(), getImageUri(bike));
+        return BikeDTOMapper.toDto(bike, bike.getOwner(), bike.getBikeImage(), getImageUri(bike));
     }
 
     public BikeResponseDTO getBike(int bikeId) {
         Bike bike =  getBikeByBikeId(bikeId);
-        return bikeDTOMapper.toDto(bike, bike.getOwner(), bike.getBikeImage(), getImageUri(bike));
+        return BikeDTOMapper.toDto(bike, bike.getOwner(), bike.getBikeImage(), getImageUri(bike));
     }
 
     public BikeResponseDTO getRandomBike() {
@@ -75,13 +75,13 @@ public class BikeService {
         if (bikes.size() == 1) {
             lastRandomBikeIndexNumber = 0;
             Bike bike = bikes.get(0);
-            return bikeDTOMapper.toDto(bike, bike.getOwner(), bike.getBikeImage(), getImageUri(bike));
+            return BikeDTOMapper.toDto(bike, bike.getOwner(), bike.getBikeImage(), getImageUri(bike));
         }
         do {newRandomBikeIndexNumber = (int) Math.round(Math.random()*(bikes.size()-1));
         } while (lastRandomBikeIndexNumber.equals(newRandomBikeIndexNumber));
         lastRandomBikeIndexNumber = newRandomBikeIndexNumber;
         Bike bike = bikes.get(newRandomBikeIndexNumber);
-        return bikeDTOMapper.toDto(bike, bike.getOwner(), bike.getBikeImage(), getImageUri(bike));
+        return BikeDTOMapper.toDto(bike, bike.getOwner(), bike.getBikeImage(), getImageUri(bike));
     }
 
     public List<BikeResponseDTO> getAllBikesByCyclistId(int cyclistId) {
@@ -130,7 +130,7 @@ public class BikeService {
     public List<BikeResponseDTO> returnBikeResponseDTOs(List<Bike> bikes) {
         List<BikeResponseDTO> bikesReturned = new ArrayList<>();
         for (Bike bike : bikes) {
-            bikesReturned.add(bikeDTOMapper.toDto(bike, bike.getOwner(), bike.getBikeImage(), getImageUri(bike)));
+            bikesReturned.add(BikeDTOMapper.toDto(bike, bike.getOwner(), bike.getBikeImage(), getImageUri(bike)));
         }
         return bikesReturned;
     }

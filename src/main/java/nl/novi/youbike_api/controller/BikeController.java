@@ -60,7 +60,7 @@ public class BikeController {
         return ResponseEntity.ok(bikeService.getAllBikesByBikeType(type));
     }
 
-    @GetMapping("/{id}/images")
+    @GetMapping("/{id}/image")
     public ResponseEntity<Resource> getBikeImage(@PathVariable int id, HttpServletRequest request) {
         Resource resource = bikeService.getBikeImage(id);
 

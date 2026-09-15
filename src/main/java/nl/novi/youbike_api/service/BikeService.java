@@ -109,9 +109,10 @@ public class BikeService {
     @Transactional
     public void deleteBike(int bikeId) throws IOException {
         Bike bike = getBikeByBikeId(bikeId);
+        String bikeImageFileName = bike.getBikeImage().getFileName();
 
         bikeRepos.delete(bike);
-        bikeImageService.deleteFile(bike.getBikeImage().getFileName());
+        bikeImageService.deleteFile(bikeImageFileName);
     }
 
 

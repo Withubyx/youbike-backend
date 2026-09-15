@@ -104,6 +104,16 @@ public class BikeRideService {
         bikeRideRepos.delete(getBikeRideByBikeRideId(bikeRideId));
     }
 
+    // This method is called from BikeCompanyService method deleteBikeCompany and CyclistService method deleteCyclist
+    public void setOrganizerIdNullIfBikeRideOrganizerIsDeleted(int bikeRideOrganizerId) {
+        getBikeRideOrganizerByOrganizerId(bikeRideOrganizerId);
+
+        List<BikeRide> bikeRides = bikeRideRepos.findAllByOrganizer_Id(bikeRideOrganizerId);
+        for (BikeRide bikeRide : bikeRides) {
+            bikeRide.setOrganizer(null);
+        }
+    }
+
 
     // Helpers
 

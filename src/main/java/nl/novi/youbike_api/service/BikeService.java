@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import nl.novi.youbike_api.controller.helper.UriHelper;
 import nl.novi.youbike_api.dto.BikeRequestDTO;
 import nl.novi.youbike_api.dto.BikeResponseDTO;
+import nl.novi.youbike_api.exception.MissingFileException;
 import nl.novi.youbike_api.exception.ResourceNotFoundException;
 import nl.novi.youbike_api.mapper.dto.BikeDTOMapper;
 import nl.novi.youbike_api.model.Bike;
@@ -38,6 +39,7 @@ public class BikeService {
     // Creates the Bike entity and its BikeImage entity and stores the BikeImage file
     @Transactional
     public BikeResponseDTO createBike(int cyclistId, BikeRequestDTO dto, MultipartFile file) throws IOException {
+        if (file.isEmpty()) {throw new MissingFileException("Missing file. (required)");}
         Cyclist owner = getCyclistByCyclistId(cyclistId);
 
         String fileName = bikeImageService.storeFile(owner, file);

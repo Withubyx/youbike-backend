@@ -38,4 +38,9 @@ public class ExceptionController {
     public ResponseEntity<String> readFileException(ReadFileException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
+
+    @ExceptionHandler(MissingFileException.class)
+    public ResponseEntity<String> MissingFileException(MissingFileException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
 }

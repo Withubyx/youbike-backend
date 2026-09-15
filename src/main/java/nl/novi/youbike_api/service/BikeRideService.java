@@ -6,6 +6,7 @@ import nl.novi.youbike_api.dto.BikeRideResponseDTO;
 import nl.novi.youbike_api.exception.ResourceNotFoundException;
 import nl.novi.youbike_api.mapper.dto.BikeRideDTOMapper;
 import nl.novi.youbike_api.model.BikeRide;
+import nl.novi.youbike_api.model.BikeRideOrganizer;
 import nl.novi.youbike_api.repository.BikeRideOrganizerRepository;
 import nl.novi.youbike_api.repository.BikeRideRepository;
 import org.springframework.stereotype.Service;
@@ -50,8 +51,31 @@ public class BikeRideService {
         return returnBikeRideResponseDTO(getBikeRideByBikeRideId(bikeRideId));
     }
 
-    public List<BikeRideResponseDTO> getAllBikeRidesByOrganizer(int organizerId) {
+    public List<BikeRideResponseDTO> getAllBikeRidesByOrganizerIdOrderStartDateTimeAscending(int organizerId) {
+        getBikeRideOrganizerByOrganizerId(organizerId);
+
         List<BikeRide> bikeRides = bikeRideRepos.findAllByOrganizer_IdOrderByStartDateTimeAsc(organizerId);
+        return returnBikeRideResponseDTOs(bikeRides);
+    }
+
+    public List<BikeRideResponseDTO> getAllBikeRidesByOrganizerIdOrderCityAscending(int organizerId) {
+        getBikeRideOrganizerByOrganizerId(organizerId);
+
+        List<BikeRide> bikeRides = bikeRideRepos.findAllByOrganizer_IdOrderByAddressLocationCityAsc(organizerId);
+        return returnBikeRideResponseDTOs(bikeRides);
+    }
+
+    public List<BikeRideResponseDTO> getAllBikeRidesByOrganizerIdOrderDistanceAscending(int organizerId) {
+        getBikeRideOrganizerByOrganizerId(organizerId);
+
+        List<BikeRide> bikeRides = bikeRideRepos.findAllByOrganizer_IdOrderByDistanceAsc(organizerId);
+        return returnBikeRideResponseDTOs(bikeRides);
+    }
+
+    public List<BikeRideResponseDTO> getAllBikeRidesByOrganizerIdOrderSpeedAscending(int organizerId) {
+        getBikeRideOrganizerByOrganizerId(organizerId);
+
+        List<BikeRide> bikeRides = bikeRideRepos.findAllByOrganizer_IdOrderBySpeedAsc(organizerId);
         return returnBikeRideResponseDTOs(bikeRides);
     }
 
@@ -100,5 +124,9 @@ public class BikeRideService {
 
     public BikeRide getBikeRideByBikeRideId(long bikeRideId) {
         return bikeRideRepos.findById(bikeRideId).orElseThrow(() -> new ResourceNotFoundException("Bike ride " + bikeRideId + " does not exist."));
+    }
+
+    public BikeRideOrganizer getBikeRideOrganizerByOrganizerId(int organizerId) {
+        return bikeRideOrganizerRepos.findById(organizerId).orElseThrow(() -> new ResourceNotFoundException("Bike ride organizer " + organizerId + " does not exist."));
     }
 }

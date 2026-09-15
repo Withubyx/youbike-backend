@@ -55,6 +55,7 @@ public class BikeController {
         return ResponseEntity.ok(bikeService.getAllBikesByCyclistId(cyclistId));
     }
 
+    // Without a BikeType argument, this endpoint functions as a getAllBikes endpoint
     @GetMapping
     public ResponseEntity<List<BikeResponseDTO>> getAllBikesByBikeType(@RequestParam(required = false) BikeType type) {
         return ResponseEntity.ok(bikeService.getAllBikesByBikeType(type));

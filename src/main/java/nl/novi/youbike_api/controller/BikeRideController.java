@@ -38,9 +38,24 @@ public class BikeRideController {
         return ResponseEntity.ok(bikeRideService.getBikeRide(id));
     }
 
-    @GetMapping("/organizers/{id}")
-    public ResponseEntity<List<BikeRideResponseDTO>> getAllBikeRidesByOrganizerId(@PathVariable int id) {
-        return ResponseEntity.ok(bikeRideService.getAllBikeRidesByOrganizer(id));
+    @GetMapping("/organizers/{organizerId}/start-date-time-order")
+    public ResponseEntity<List<BikeRideResponseDTO>> getAllBikeRidesByOrganizerIdOrderStartDateTimeAscending(@PathVariable int organizerId) {
+        return ResponseEntity.ok(bikeRideService.getAllBikeRidesByOrganizerIdOrderStartDateTimeAscending(organizerId));
+    }
+
+    @GetMapping("organizers/{organizerId}/city-order")
+    public ResponseEntity<List<BikeRideResponseDTO>> getAllBikesRidesByOrganizerIdOrderCityAscending(@PathVariable int organizerId) {
+        return ResponseEntity.ok(bikeRideService.getAllBikeRidesByOrganizerIdOrderCityAscending(organizerId));
+    }
+
+    @GetMapping("organizers/{organizerId}/distance-order")
+    public ResponseEntity<List<BikeRideResponseDTO>> getAllBikesRidesByOrganizerIdOrderDistanceAscending(@PathVariable int organizerId) {
+        return ResponseEntity.ok(bikeRideService.getAllBikeRidesByOrganizerIdOrderDistanceAscending(organizerId));
+    }
+
+    @GetMapping("organizers/{organizerId}/speed-order")
+    public ResponseEntity<List<BikeRideResponseDTO>> getAllBikesRidesByOrganizerIdOrderSpeedAscending(@PathVariable int organizerId) {
+        return ResponseEntity.ok(bikeRideService.getAllBikeRidesByOrganizerIdOrderSpeedAscending(organizerId));
     }
 
     @GetMapping("/start-date-time-order")

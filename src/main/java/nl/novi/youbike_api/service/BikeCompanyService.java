@@ -26,16 +26,18 @@ public class BikeCompanyService {
     private final UserRepository userRepos;
     private final EmailUniqueHelper emailUniqueHelper;
     private final NameUniqueHelper nameUniqueHelper;
+    private final BikeRideService bikeRideService;
 
     public BikeCompanyService(
             BikeCompanyRepository bikeCompanyRepos,
             UserRepository userRepos,
             EmailUniqueHelper emailUniqueHelper,
-            NameUniqueHelper nameUniqueHelper) {
+            NameUniqueHelper nameUniqueHelper, BikeRideService bikeRideService) {
         this.bikeCompanyRepos = bikeCompanyRepos;
         this.userRepos = userRepos;
         this.emailUniqueHelper = emailUniqueHelper;
         this.nameUniqueHelper = nameUniqueHelper;
+        this.bikeRideService = bikeRideService;
     }
 
     @Transactional
@@ -100,6 +102,7 @@ public class BikeCompanyService {
         BikeCompany bikeCompany = getBikeCompanyByBikeCompanyId(bikeCompanyId);
         User user = getUserByBikeCompanyId(bikeCompanyId);
 
+        bikeRideService.setOrganizerIdNullIfBikeRideOrganizerIsDeleted(bikeCompanyId);
         user.removeBikeCompany();
         bikeCompanyRepos.delete(bikeCompany);
     }

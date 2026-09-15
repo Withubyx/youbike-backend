@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface BikeRideRepository extends JpaRepository<BikeRide, Long> {
 
+    List<BikeRide> findAllByOrganizer_Id(int organizerId);
+
     List<BikeRide> findAllByOrganizer_IdOrderByStartDateTimeAsc(int organizerId);
 
     List<BikeRide> findAllByOrganizer_IdOrderByAddressLocationCityAsc(int organizerId);

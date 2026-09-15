@@ -9,6 +9,7 @@ import nl.novi.youbike_api.service.CyclistService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class CyclistController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCyclist(@PathVariable int id) {
+    public ResponseEntity<Void> deleteCyclist(@PathVariable int id) throws IOException {
         cyclistService.deleteCyclist(id);
         return ResponseEntity.noContent().build();
     }

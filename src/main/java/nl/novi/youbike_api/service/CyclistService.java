@@ -7,15 +7,18 @@ import nl.novi.youbike_api.dto.value_object.CityCountryLocationDTO;
 import nl.novi.youbike_api.exception.ResourceNotFoundException;
 import nl.novi.youbike_api.mapper.dto.CyclistDTOMapper;
 import nl.novi.youbike_api.mapper.dto.value_object.CityCountryLocationDTOMapper;
+import nl.novi.youbike_api.model.BikeComment;
 import nl.novi.youbike_api.model.Cyclist;
 import nl.novi.youbike_api.model.User;
 import nl.novi.youbike_api.model.value_object.CityCountryLocation;
+import nl.novi.youbike_api.repository.BikeCommentRepository;
 import nl.novi.youbike_api.repository.CyclistRepository;
 import nl.novi.youbike_api.repository.UserRepository;
 import nl.novi.youbike_api.service.helper.EmailUniqueHelper;
 import nl.novi.youbike_api.service.helper.NameUniqueHelper;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,18 +27,27 @@ public class CyclistService {
 
     private final CyclistRepository cyclistRepos;
     private final UserRepository userRepos;
+    private final BikeCommentRepository bikeCommentRepos;
     private final EmailUniqueHelper emailUniqueHelper;
     private final NameUniqueHelper nameUniqueHelper;
+    private final BikeRideService bikeRideService;
+    private final BikeImageService bikeImageService;
 
     public CyclistService(
             CyclistRepository cyclistRepos,
             UserRepository userRepos,
+            BikeCommentRepository bikeCommentRepos,
             EmailUniqueHelper emailUniqueHelper,
-            NameUniqueHelper nameUniqueHelper) {
+            NameUniqueHelper nameUniqueHelper,
+            BikeRideService bikeRideService,
+            BikeImageService bikeImageService) {
         this.cyclistRepos = cyclistRepos;
         this.userRepos = userRepos;
+        this.bikeCommentRepos = bikeCommentRepos;
         this.emailUniqueHelper = emailUniqueHelper;
         this.nameUniqueHelper = nameUniqueHelper;
+        this.bikeRideService = bikeRideService;
+        this.bikeImageService = bikeImageService;
     }
 
     @Transactional
@@ -95,12 +107,21 @@ public class CyclistService {
     }
 
     @Transactional
-    public void deleteCyclist(int cyclistId) {
+    public void deleteCyclist(int cyclistId) throws IOException {
         Cyclist cyclist = getCyclistByCyclistId(cyclistId);
         User user = getUserByCyclistId(cyclistId);
 
+        List<String> bikeImageFileNames = cyclist.getBikes().stream().map(bike -> bike.getBikeImage().getFileName()).toList();
+        bikeRideService.setOrganizerIdNullIfBikeRideOrganizerIsDeleted(cyclistId);
+        List<BikeComment> bikeComments = bikeCommentRepos.findByAuthor_Id(cyclistId);
+        for (BikeComment bikeComment : bikeComments) {
+            bikeComment.setAuthor(null);
+        }
         user.removeCyclist();
         cyclistRepos.delete(cyclist);
+        for (String fileName : bikeImageFileNames) {
+            bikeImageService.deleteFile(fileName);
+        }
     }
 
 

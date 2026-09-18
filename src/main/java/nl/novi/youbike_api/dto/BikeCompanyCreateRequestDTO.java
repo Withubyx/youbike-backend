@@ -8,12 +8,16 @@ import jakarta.validation.constraints.Size;
 import nl.novi.youbike_api.dto.value_object.AddressLocationDTO;
 import nl.novi.youbike_api.model.enums.BikeCompanyType;
 
-public class BikeCompanyRequestDTO {
+public class BikeCompanyCreateRequestDTO {
+
+    @NotBlank(message = "Insert a password. (required)")
+    @Size(min = 10, max = 100, message = "Password address must be at least 10 characters long most 100 characters long.")
+    private String password;
 
     @Email(message = "Insert a valid email address.")
     @NotBlank(message = "Insert an email address. (required)")
     @Size(max = 100, message = "Email address must be at most 100 characters long.")
-    private String email;   //is a User field
+    private String email;
 
     @NotBlank(message = "Insert a name. (required)")
     @Size(min = 2, max = 20, message = "Name must be at least 2 characters long and at most 20 characters long.")
@@ -25,6 +29,14 @@ public class BikeCompanyRequestDTO {
     @Valid
     @NotNull(message = "Insert full address. (required)")
     private AddressLocationDTO addressLocation;
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public String getEmail() {
         return email;

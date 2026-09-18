@@ -1,6 +1,7 @@
 package nl.novi.youbike_api.service;
 
 import jakarta.transaction.Transactional;
+import nl.novi.youbike_api.dto.CyclistCreateRequestDTO;
 import nl.novi.youbike_api.dto.CyclistRequestDTO;
 import nl.novi.youbike_api.dto.CyclistResponseDTO;
 import nl.novi.youbike_api.dto.value_object.CityCountryLocationDTO;
@@ -10,12 +11,14 @@ import nl.novi.youbike_api.mapper.dto.value_object.CityCountryLocationDTOMapper;
 import nl.novi.youbike_api.model.BikeComment;
 import nl.novi.youbike_api.model.Cyclist;
 import nl.novi.youbike_api.model.User;
+import nl.novi.youbike_api.model.enums.UserRole;
 import nl.novi.youbike_api.model.value_object.CityCountryLocation;
 import nl.novi.youbike_api.repository.BikeCommentRepository;
 import nl.novi.youbike_api.repository.CyclistRepository;
 import nl.novi.youbike_api.repository.UserRepository;
 import nl.novi.youbike_api.service.helper.EmailUniqueHelper;
 import nl.novi.youbike_api.service.helper.NameUniqueHelper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -32,6 +35,7 @@ public class CyclistService {
     private final NameUniqueHelper nameUniqueHelper;
     private final BikeRideService bikeRideService;
     private final BikeImageService bikeImageService;
+    private final PasswordEncoder passwordEncoder;
 
     public CyclistService(
             CyclistRepository cyclistRepos,
@@ -40,7 +44,8 @@ public class CyclistService {
             EmailUniqueHelper emailUniqueHelper,
             NameUniqueHelper nameUniqueHelper,
             BikeRideService bikeRideService,
-            BikeImageService bikeImageService) {
+            BikeImageService bikeImageService,
+            PasswordEncoder passwordEncoder) {
         this.cyclistRepos = cyclistRepos;
         this.userRepos = userRepos;
         this.bikeCommentRepos = bikeCommentRepos;
@@ -48,15 +53,18 @@ public class CyclistService {
         this.nameUniqueHelper = nameUniqueHelper;
         this.bikeRideService = bikeRideService;
         this.bikeImageService = bikeImageService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
-    public CyclistResponseDTO createCyclist(CyclistRequestDTO dto) {
+    public CyclistResponseDTO createCyclist(CyclistCreateRequestDTO dto) {
         emailUniqueHelper.checkEmailUnique(dto.getEmail().toLowerCase());
         nameUniqueHelper.checkNameUnique(dto.getName().toLowerCase());
 
         Cyclist cyclist = CyclistDTOMapper.toEntity(dto);
         User user = new User(dto.getEmail());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setRole(UserRole.ROLE_CYCLIST);
         cyclistRepos.save(cyclist);
         user.setCyclist(cyclist);
         userRepos.save(user);
@@ -117,7 +125,7 @@ public class CyclistService {
         for (BikeComment bikeComment : bikeComments) {
             bikeComment.setAuthor(null);
         }
-        user.removeCyclist();
+        userRepos.delete(user);
         cyclistRepos.delete(cyclist);
         for (String fileName : bikeImageFileNames) {
             bikeImageService.deleteFile(fileName);

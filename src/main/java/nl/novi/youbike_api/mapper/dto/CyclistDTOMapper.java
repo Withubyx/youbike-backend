@@ -1,5 +1,6 @@
 package nl.novi.youbike_api.mapper.dto;
 
+import nl.novi.youbike_api.dto.CyclistCreateRequestDTO;
 import nl.novi.youbike_api.dto.CyclistRequestDTO;
 import nl.novi.youbike_api.dto.CyclistResponseDTO;
 import nl.novi.youbike_api.mapper.dto.value_object.CityCountryLocationDTOMapper;
@@ -8,6 +9,10 @@ import nl.novi.youbike_api.model.User;
 import org.springframework.stereotype.Component;
 
 public class CyclistDTOMapper {
+
+    public static Cyclist toEntity(CyclistCreateRequestDTO dto) {
+        return new Cyclist(dto.getName(), CityCountryLocationDTOMapper.toEntity(dto.getCityCountryLocation()));
+    }
 
     public static Cyclist toEntity(CyclistRequestDTO dto) {
         return new Cyclist(dto.getName(), CityCountryLocationDTOMapper.toEntity(dto.getCityCountryLocation()));

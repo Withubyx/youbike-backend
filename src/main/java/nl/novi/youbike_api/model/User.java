@@ -1,6 +1,7 @@
 package nl.novi.youbike_api.model;
 
 import jakarta.persistence.*;
+import nl.novi.youbike_api.model.enums.UserRole;
 
 @Entity
 @Table(name = "users")
@@ -10,11 +11,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(unique = true, nullable = false, length = 255)
+    @Column(unique = true, nullable = false, length = 100)
     private String email;
 
-    @Column(name = "email_lowercase", unique = true, nullable = false, length = 255)
+    @Column(name = "email_lowercase", unique = true, nullable = false, length = 100)
     private String emailLowercase;
+
+    @Column(nullable = false, length = 100)
+    private String password;
+
+    private UserRole role;
 
     @OneToOne
     @JoinColumn(name = "cyclist_id")
@@ -23,12 +29,6 @@ public class User {
     @OneToOne
     @JoinColumn(name = "bike_company_id")
     private BikeCompany bikeCompany;
-
-    @Column(name = "was_cyclist")
-    private boolean wasCyclist;
-
-    @Column(name = "was_bike_company")
-    private boolean wasBikeCompany;
 
     public User() {}
 
@@ -62,23 +62,29 @@ public class User {
         this.emailLowercase = emailLowercase;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
+
     public Cyclist getCyclist() {
         return cyclist;
     }
 
     public void setCyclist(Cyclist cyclist) {
-        if (cyclist != null) {
-            this.cyclist = cyclist;
-            if (this.bikeCompany != null) {
-                this.wasBikeCompany = true;
-                this.bikeCompany = null; // a User can not be both a Cyclist and a BikeCompany
-            }
-        }
-    }
-
-    public void removeCyclist() {
-        this.cyclist = null;
-        this.wasCyclist = true;
+        this.cyclist = cyclist;
+        this.bikeCompany = null; // A User is either a BikeCompany or a Cyclist
     }
 
     public BikeCompany getBikeCompany() {
@@ -86,26 +92,8 @@ public class User {
     }
 
     public void setBikeCompany(BikeCompany bikeCompany) {
-        if (bikeCompany != null) {
-            this.bikeCompany = bikeCompany;
-            if (this.cyclist != null) {
-                this.wasCyclist = true;
-                this.cyclist = null; // a User can not be both a Cyclist and a BikeCompany
-            }
-        }
-    }
-
-    public void removeBikeCompany() {
-        this.bikeCompany = null;
-        this.wasBikeCompany = true;
-    }
-
-    public boolean isWasCyclist() {
-        return wasCyclist;
-    }
-
-    public boolean isWasBikeCompany() {
-        return wasBikeCompany;
+        this.bikeCompany = bikeCompany;
+        this.cyclist = null; // A User is either a BikeCompany or a Cyclist
     }
 
     @Override
@@ -114,8 +102,7 @@ public class User {
                 "id=" + id +
                 ", email='" + email + '\'' +
                 ", emailLowercase='" + emailLowercase + '\'' +
-                ", wasCyclist=" + wasCyclist +
-                ", wasBikeCompany=" + wasBikeCompany +
+                ", role=" + role +
                 '}';
     }
 }

@@ -9,6 +9,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     boolean existsByEmailLowercase(String emailLowercase);
 
+    Optional<User> findByEmailLowercase(String emailLowercase);
+
     Optional<User> findByCyclist_Id(int cyclistId);
 
     Optional<User> findByBikeCompany_Id(int bikeCompanyId);

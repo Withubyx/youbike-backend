@@ -10,10 +10,13 @@ import nl.novi.youbike_api.mapper.dto.BikeDTOMapper;
 import nl.novi.youbike_api.model.Bike;
 import nl.novi.youbike_api.model.BikeImage;
 import nl.novi.youbike_api.model.Cyclist;
+import nl.novi.youbike_api.model.User;
 import nl.novi.youbike_api.model.enums.BikeType;
 import nl.novi.youbike_api.repository.BikeRepository;
 import nl.novi.youbike_api.repository.CyclistRepository;
+import nl.novi.youbike_api.service.helper.AuthorizationHelper;
 import org.springframework.core.io.Resource;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,18 +32,21 @@ public class BikeService {
     private final BikeRepository bikeRepos;
     private final CyclistRepository cyclistRepos;
     private final BikeImageService bikeImageService;
+    private final AuthorizationHelper authorizationHelper;
 
-    public BikeService(BikeRepository bikeRepos, CyclistRepository cyclistRepos, BikeImageService bikeImageService) {
+    public BikeService(BikeRepository bikeRepos, CyclistRepository cyclistRepos, BikeImageService bikeImageService, AuthorizationHelper authorizationHelper) {
         this.bikeRepos = bikeRepos;
         this.cyclistRepos = cyclistRepos;
         this.bikeImageService = bikeImageService;
+        this.authorizationHelper = authorizationHelper;
     }
 
     // Creates the Bike entity and its BikeImage entity and stores the BikeImage file
     @Transactional
-    public BikeResponseDTO createBike(int cyclistId, BikeRequestDTO dto, MultipartFile file) throws IOException {
+    public BikeResponseDTO createBike(BikeRequestDTO dto, MultipartFile file, UserDetails userDetails) throws IOException {
         if (file.isEmpty()) {throw new MissingFileException("Missing file. (required)");}
-        Cyclist owner = getCyclistByCyclistId(cyclistId);
+        User user = authorizationHelper.getUser(userDetails);
+        Cyclist owner = authorizationHelper.getCyclist(user);
 
         String fileName = bikeImageService.storeFile(owner, file);
         BikeImage bikeImage = new BikeImage(fileName);
@@ -53,7 +59,8 @@ public class BikeService {
     }
 
     @Transactional
-    public BikeResponseDTO updateBikeInfo(int bikeId, BikeRequestDTO dto) {
+    public BikeResponseDTO updateBikeInfo(int bikeId, BikeRequestDTO dto, UserDetails userDetails) {
+        authorizationHelper.checkUserOwnsBike(bikeId, userDetails);
         Bike bike = getBikeByBikeId(bikeId);
 
         Bike bikeUpdate = BikeDTOMapper.toEntity(dto);
@@ -107,7 +114,8 @@ public class BikeService {
     }
 
     @Transactional
-    public void deleteBike(int bikeId) throws IOException {
+    public void deleteBike(int bikeId, UserDetails userDetails) throws IOException {
+        authorizationHelper.checkUserOwnsBike(bikeId, userDetails);
         Bike bike = getBikeByBikeId(bikeId);
         String bikeImageFileName = bike.getBikeImage().getFileName();
 
@@ -123,7 +131,7 @@ public class BikeService {
     }
 
     public Cyclist getCyclistByCyclistId(int cyclistId) {
-        return cyclistRepos.findById(cyclistId).orElseThrow(() -> new ResourceNotFoundException("Cyclist " + cyclistId + "does not exist."));
+        return cyclistRepos.findById(cyclistId).orElseThrow(() -> new ResourceNotFoundException("Cyclist " + cyclistId + " does not exist."));
     }
 
     public String getImageUri(Bike bike) {

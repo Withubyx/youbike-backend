@@ -11,6 +11,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,16 +30,22 @@ public class BikeController {
         this.bikeService = bikeService;
     }
 
-    @PostMapping(value = "/cyclists/{cyclistId}", consumes= MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<BikeResponseDTO> createBike(@PathVariable int cyclistId, @Valid @RequestPart("bike") BikeRequestDTO dto, @RequestPart("file") MultipartFile file) throws IOException {
-        BikeResponseDTO responseDTO = bikeService.createBike(cyclistId, dto, file);
+    @PostMapping(consumes= MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<BikeResponseDTO> createBike(
+            @Valid @RequestPart("bike") BikeRequestDTO dto,
+            @RequestPart("file") MultipartFile file,
+            @AuthenticationPrincipal UserDetails userDetails) throws IOException {
+        BikeResponseDTO responseDTO = bikeService.createBike(dto, file, userDetails);
         URI uri = UriHelper.buildUri("/bikes", responseDTO.getId());
         return ResponseEntity.created(uri).body(responseDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BikeResponseDTO> updateBikeInfo(@PathVariable int id, @Valid @RequestBody BikeRequestDTO dto) {
-        return ResponseEntity.ok(bikeService.updateBikeInfo(id, dto));
+    public ResponseEntity<BikeResponseDTO> updateBikeInfo(
+            @PathVariable int id,
+            @Valid @RequestBody BikeRequestDTO dto,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(bikeService.updateBikeInfo(id, dto, userDetails));
     }
 
     @GetMapping("/{id}")
@@ -80,8 +88,10 @@ public class BikeController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBike(@PathVariable int id) throws IOException {
-        bikeService.deleteBike(id);
+    public ResponseEntity<Void> deleteBike(
+            @PathVariable int id,
+            @AuthenticationPrincipal UserDetails userDetails) throws IOException {
+        bikeService.deleteBike(id, userDetails);
         return ResponseEntity.noContent().build();
     }
 }

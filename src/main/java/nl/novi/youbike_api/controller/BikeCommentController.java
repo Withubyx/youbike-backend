@@ -6,6 +6,8 @@ import nl.novi.youbike_api.dto.BikeCommentRequestDTO;
 import nl.novi.youbike_api.dto.BikeCommentResponseDTO;
 import nl.novi.youbike_api.service.BikeCommentService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -21,16 +23,22 @@ public class BikeCommentController {
         this.bikeCommentService = bikeCommentService;
     }
 
-    @PostMapping("/bikes/{bikeId}/authors/{authorId}")
-    public ResponseEntity<BikeCommentResponseDTO> createBikeComment(@PathVariable int bikeId, @PathVariable int authorId, @Valid @RequestBody BikeCommentRequestDTO dto) {
-        BikeCommentResponseDTO responseDTO = bikeCommentService.createBikeComment(bikeId,authorId, dto);
+    @PostMapping("/bikes/{bikeId}")
+    public ResponseEntity<BikeCommentResponseDTO> createBikeComment(
+            @PathVariable int bikeId,
+            @Valid @RequestBody BikeCommentRequestDTO dto,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        BikeCommentResponseDTO responseDTO = bikeCommentService.createBikeComment(bikeId, dto, userDetails);
         URI uri = UriHelper.buildUri("/bike-comments", responseDTO.getId());
         return ResponseEntity.created(uri).body(responseDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BikeCommentResponseDTO> updateBikeComment(@PathVariable long id, @Valid @RequestBody BikeCommentRequestDTO dto) {
-        return ResponseEntity.ok(bikeCommentService.updateBikeComment(id, dto));
+    public ResponseEntity<BikeCommentResponseDTO> updateBikeComment(
+            @PathVariable long id,
+            @Valid @RequestBody BikeCommentRequestDTO dto,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(bikeCommentService.updateBikeComment(id, dto, userDetails));
     }
 
     @GetMapping("/{id}")
@@ -54,8 +62,10 @@ public class BikeCommentController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBikeComment(@PathVariable long id) {
-        bikeCommentService.deleteBikeComment(id);
+    public ResponseEntity<Void> deleteBikeComment(
+            @PathVariable long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        bikeCommentService.deleteBikeComment(id, userDetails);
         return ResponseEntity.noContent().build();
     }
 }

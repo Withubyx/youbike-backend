@@ -8,6 +8,8 @@ import nl.novi.youbike_api.dto.BikeCompanyResponseDTO;
 import nl.novi.youbike_api.dto.value_object.AddressLocationDTO;
 import nl.novi.youbike_api.service.BikeCompanyService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -30,14 +32,18 @@ public class BikeCompanyController {
         return ResponseEntity.created(uri).body(responseDTO);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<BikeCompanyResponseDTO> updateBikeCompany(@PathVariable int id, @Valid @RequestBody BikeCompanyRequestDTO dto) {
-        return ResponseEntity.ok(bikeCompanyService.updateBikeCompany(id, dto));
+    @PutMapping()
+    public ResponseEntity<BikeCompanyResponseDTO> updateBikeCompany(
+            @Valid @RequestBody BikeCompanyRequestDTO dto,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(bikeCompanyService.updateBikeCompany(dto, userDetails));
     }
 
-    @PatchMapping("/{id}/location")
-    public ResponseEntity<BikeCompanyResponseDTO> updateBikeCompanyAddressLocation(@PathVariable int id, @Valid @RequestBody AddressLocationDTO dto) {
-        return ResponseEntity.ok(bikeCompanyService.updateBikeCompanyAddressLocation(id, dto));
+    @PatchMapping("/location")
+    public ResponseEntity<BikeCompanyResponseDTO> updateBikeCompanyAddressLocation(
+            @Valid @RequestBody AddressLocationDTO dto,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(bikeCompanyService.updateBikeCompanyAddressLocation(dto, userDetails));
     }
 
     @GetMapping("/{id}")
@@ -50,9 +56,9 @@ public class BikeCompanyController {
         return ResponseEntity.ok(bikeCompanyService.getAllBikeCompanies());
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBikeCompany(@PathVariable int id) {
-        bikeCompanyService.deleteBikeCompany(id);
+    @DeleteMapping()
+    public ResponseEntity<Void> deleteBikeCompany(@AuthenticationPrincipal UserDetails userDetails) {
+        bikeCompanyService.deleteBikeCompany(userDetails);
         return ResponseEntity.noContent().build();
     }
 }

@@ -14,8 +14,10 @@ import nl.novi.youbike_api.model.enums.UserRole;
 import nl.novi.youbike_api.model.value_object.AddressLocation;
 import nl.novi.youbike_api.repository.BikeCompanyRepository;
 import nl.novi.youbike_api.repository.UserRepository;
+import nl.novi.youbike_api.service.helper.AuthorizationHelper;
 import nl.novi.youbike_api.service.helper.EmailUniqueHelper;
 import nl.novi.youbike_api.service.helper.NameUniqueHelper;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +33,7 @@ public class BikeCompanyService {
     private final NameUniqueHelper nameUniqueHelper;
     private final BikeRideService bikeRideService;
     private final PasswordEncoder passwordEncoder;
+    private final AuthorizationHelper authorizationHelper;
 
     public BikeCompanyService(
             BikeCompanyRepository bikeCompanyRepos,
@@ -38,13 +41,14 @@ public class BikeCompanyService {
             EmailUniqueHelper emailUniqueHelper,
             NameUniqueHelper nameUniqueHelper,
             BikeRideService bikeRideService,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder, AuthorizationHelper authorizationHelper) {
         this.bikeCompanyRepos = bikeCompanyRepos;
         this.userRepos = userRepos;
         this.emailUniqueHelper = emailUniqueHelper;
         this.nameUniqueHelper = nameUniqueHelper;
         this.bikeRideService = bikeRideService;
         this.passwordEncoder = passwordEncoder;
+        this.authorizationHelper = authorizationHelper;
     }
 
     @Transactional
@@ -63,12 +67,9 @@ public class BikeCompanyService {
     }
 
     @Transactional
-    public BikeCompanyResponseDTO updateBikeCompany(int bikeCompanyId, BikeCompanyRequestDTO dto) {
-        BikeCompany bikeCompany = getBikeCompanyByBikeCompanyId(bikeCompanyId);
-        User user = getUserByBikeCompanyId(bikeCompanyId);
-        if (!dto.getEmail().toLowerCase().equals(user.getEmailLowercase())) {
-            emailUniqueHelper.checkEmailUnique(dto.getEmail().toLowerCase());
-        }
+    public BikeCompanyResponseDTO updateBikeCompany(BikeCompanyRequestDTO dto, UserDetails userDetails) {
+        User user = authorizationHelper.getUser(userDetails);
+        BikeCompany bikeCompany = authorizationHelper.getBikeCompany(user);
         if (!dto.getName().toLowerCase().equals(bikeCompany.getNameLowercase())) {
             nameUniqueHelper.checkNameUnique(dto.getName().toLowerCase());
         }
@@ -77,15 +78,14 @@ public class BikeCompanyService {
         bikeCompany.setName(bikeCompanyUpdate.getName());
         bikeCompany.setBikeCompanyType(bikeCompanyUpdate.getBikeCompanyType());
         bikeCompany.setAddressLocation(bikeCompanyUpdate.getAddressLocation());
-        user.setEmail(dto.getEmail());
         return BikeCompanyDTOMapper.toDto(bikeCompany, user);
     }
 
     @Transactional
-    public BikeCompanyResponseDTO updateBikeCompanyAddressLocation(int bikeCompanyId, AddressLocationDTO dto) {
-        BikeCompany bikeCompany = getBikeCompanyByBikeCompanyId(bikeCompanyId);
+    public BikeCompanyResponseDTO updateBikeCompanyAddressLocation(AddressLocationDTO dto, UserDetails userDetails) {
+        User user = authorizationHelper.getUser(userDetails);
+        BikeCompany bikeCompany = authorizationHelper.getBikeCompany(user);
         AddressLocation addressLocation = AddressLocationDTOMapper.toEntity(dto);
-        User user = getUserByBikeCompanyId(bikeCompanyId);
 
         bikeCompany.setAddressLocation(addressLocation);
         return BikeCompanyDTOMapper.toDto(bikeCompany, user);
@@ -107,11 +107,12 @@ public class BikeCompanyService {
     }
 
     @Transactional
-    public void deleteBikeCompany(int bikeCompanyId) {
-        BikeCompany bikeCompany = getBikeCompanyByBikeCompanyId(bikeCompanyId);
-        User user = getUserByBikeCompanyId(bikeCompanyId);
+    public void deleteBikeCompany(UserDetails userDetails) {
+        User user = authorizationHelper.getUser(userDetails);
+        BikeCompany bikeCompany = authorizationHelper.getBikeCompany(user);
 
-        bikeRideService.setOrganizerIdNullIfBikeRideOrganizerIsDeleted(bikeCompanyId);
+        bikeRideService.setOrganizerIdNullIfBikeRideOrganizerIsDeleted(bikeCompany.getId());
+        user.setBikeCompany(null);
         userRepos.delete(user);
         bikeCompanyRepos.delete(bikeCompany);
     }

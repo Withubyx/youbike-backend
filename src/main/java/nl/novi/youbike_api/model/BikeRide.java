@@ -33,7 +33,7 @@ public class BikeRide {
     private SpeedType speed;
 
     @ElementCollection
-    @CollectionTable(name = "bike_rides_urface_types", joinColumns = @JoinColumn(name = "bike_ride_id"))
+    @CollectionTable(name = "bike_rides_surface_types", joinColumns = @JoinColumn(name = "bike_ride_id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "surface_type")
     private Set<SurfaceType> surfaceTypes = new HashSet<>();

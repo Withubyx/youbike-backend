@@ -8,9 +8,12 @@ import nl.novi.youbike_api.mapper.dto.BikeCommentDTOMapper;
 import nl.novi.youbike_api.model.Bike;
 import nl.novi.youbike_api.model.BikeComment;
 import nl.novi.youbike_api.model.Cyclist;
+import nl.novi.youbike_api.model.User;
 import nl.novi.youbike_api.repository.BikeCommentRepository;
 import nl.novi.youbike_api.repository.BikeRepository;
 import nl.novi.youbike_api.repository.CyclistRepository;
+import nl.novi.youbike_api.service.helper.AuthorizationHelper;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,39 +25,43 @@ public class BikeCommentService {
     private final BikeCommentRepository bikeCommentRepos;
     private final BikeRepository bikeRepos;
     private final CyclistRepository cyclistRepos;
+    private final AuthorizationHelper authorizationHelper;
 
-    public BikeCommentService(BikeCommentRepository bikeCommentRepos, BikeRepository bikeRepos, CyclistRepository cyclistRepos) {
+    public BikeCommentService(BikeCommentRepository bikeCommentRepos, BikeRepository bikeRepos, CyclistRepository cyclistRepos, AuthorizationHelper authorizationHelper) {
         this.bikeCommentRepos = bikeCommentRepos;
         this.bikeRepos = bikeRepos;
         this.cyclistRepos = cyclistRepos;
+        this.authorizationHelper = authorizationHelper;
     }
 
     @Transactional
-    public BikeCommentResponseDTO createBikeComment(int bikeId, int authorId, BikeCommentRequestDTO dto) {
+    public BikeCommentResponseDTO createBikeComment(int bikeId, BikeCommentRequestDTO dto, UserDetails userDetails) {
+        User user = authorizationHelper.getUser(userDetails);
+        Cyclist author = authorizationHelper.getCyclist(user);
         Bike bike = getBikeByBikeId(bikeId);
-        Cyclist author = getAuthorByAuthorId(authorId);
 
         BikeComment bikeComment = BikeCommentDTOMapper.toEntity(dto);
         bikeComment.setAuthor(author);
         bikeComment.setBike(bike);
         bike.addComment(bikeComment);
         bikeCommentRepos.save(bikeComment);
-        return returnBikRideResponseDTO(bikeComment);
+        return returnBikeRideResponseDTO(bikeComment);
     }
 
     @Transactional
-    public BikeCommentResponseDTO updateBikeComment(long bikeCommentId, BikeCommentRequestDTO dto) {
+    public BikeCommentResponseDTO updateBikeComment(long bikeCommentId, BikeCommentRequestDTO dto, UserDetails userDetails) {
+        authorizationHelper.checkUserOwnsBikeComment(bikeCommentId, userDetails);
         BikeComment bikeComment = getBikeCommentByBikeCommentId(bikeCommentId);
 
         BikeComment bikeCommentUpdate = BikeCommentDTOMapper.toEntity(dto);
         bikeComment.setComment(bikeCommentUpdate.getComment());
-        return returnBikRideResponseDTO(bikeComment);
+        return returnBikeRideResponseDTO(bikeComment);
     }
 
     public BikeCommentResponseDTO getBikeComment(long bikeCommentId) {
         BikeComment bikeComment = getBikeCommentByBikeCommentId(bikeCommentId);
 
-        return returnBikRideResponseDTO(bikeComment);
+        return returnBikeRideResponseDTO(bikeComment);
     }
 
     public List<BikeCommentResponseDTO> getAllBikeComments() {
@@ -76,7 +83,8 @@ public class BikeCommentService {
     }
 
     @Transactional
-    public void deleteBikeComment(long bikeCommentId) {
+    public void deleteBikeComment(long bikeCommentId, UserDetails userDetails) {
+        authorizationHelper.checkUserOwnsBikeComment(bikeCommentId, userDetails);
         BikeComment bikeComment = getBikeCommentByBikeCommentId(bikeCommentId);
         bikeCommentRepos.delete(bikeComment);
     }
@@ -84,7 +92,7 @@ public class BikeCommentService {
 
     // Helpers
 
-    public BikeCommentResponseDTO returnBikRideResponseDTO(BikeComment bikeComment) {
+    public BikeCommentResponseDTO returnBikeRideResponseDTO(BikeComment bikeComment) {
         if (bikeComment.getAuthor() == null) {
             return BikeCommentDTOMapper.toDto(bikeComment, bikeComment.getBike());
         }
@@ -94,7 +102,7 @@ public class BikeCommentService {
     public List<BikeCommentResponseDTO> returnBikeRideResponseDTOs(List<BikeComment> bikeComments) {
         List<BikeCommentResponseDTO> bikeCommentsReturned = new ArrayList<>();
         for (BikeComment bikeComment : bikeComments) {
-            bikeCommentsReturned.add(returnBikRideResponseDTO(bikeComment));
+            bikeCommentsReturned.add(returnBikeRideResponseDTO(bikeComment));
         }
         return bikeCommentsReturned;
     }

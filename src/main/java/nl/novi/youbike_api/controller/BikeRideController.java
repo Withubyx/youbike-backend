@@ -6,6 +6,8 @@ import nl.novi.youbike_api.dto.BikeRideRequestDTO;
 import nl.novi.youbike_api.dto.BikeRideResponseDTO;
 import nl.novi.youbike_api.service.BikeRideService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -21,16 +23,21 @@ public class BikeRideController {
         this.bikeRideService = bikeRideService;
     }
 
-    @PostMapping("/{organizerId}")
-    public ResponseEntity<BikeRideResponseDTO> createBikeRide(@PathVariable int organizerId, @Valid @RequestBody BikeRideRequestDTO dto) {
-        BikeRideResponseDTO responseDTO = bikeRideService.createBikeRide(organizerId, dto);
+    @PostMapping()
+    public ResponseEntity<BikeRideResponseDTO> createBikeRide(
+            @Valid @RequestBody BikeRideRequestDTO dto,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        BikeRideResponseDTO responseDTO = bikeRideService.createBikeRide(dto, userDetails);
         URI uri = UriHelper.buildUri("/bike-rides", responseDTO.getId());
         return ResponseEntity.created(uri).body(responseDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BikeRideResponseDTO> updateBikeRide(@PathVariable long id, @Valid @RequestBody BikeRideRequestDTO dto) {
-        return ResponseEntity.ok(bikeRideService.updateBikeRide(id, dto));
+    public ResponseEntity<BikeRideResponseDTO> updateBikeRide(
+            @PathVariable long id,
+            @Valid @RequestBody BikeRideRequestDTO dto,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(bikeRideService.updateBikeRide(id, dto, userDetails));
     }
 
     @GetMapping("/{id}")
@@ -79,8 +86,10 @@ public class BikeRideController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBikeRide(@PathVariable long id) {
-        bikeRideService.deleteBikeRide(id);
+    public ResponseEntity<Void> deleteBikeRide(
+            @PathVariable long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        bikeRideService.deleteBikeRide(id, userDetails);
         return ResponseEntity.noContent().build();
     }
 }

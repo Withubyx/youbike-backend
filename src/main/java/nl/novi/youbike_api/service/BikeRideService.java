@@ -9,6 +9,8 @@ import nl.novi.youbike_api.model.BikeRide;
 import nl.novi.youbike_api.model.BikeRideOrganizer;
 import nl.novi.youbike_api.repository.BikeRideOrganizerRepository;
 import nl.novi.youbike_api.repository.BikeRideRepository;
+import nl.novi.youbike_api.service.helper.AuthorizationHelper;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,22 +21,26 @@ public class BikeRideService {
 
     private final BikeRideRepository bikeRideRepos;
     private final BikeRideOrganizerRepository bikeRideOrganizerRepos;
+    private final AuthorizationHelper authorizationHelper;
 
-    public BikeRideService(BikeRideRepository bikeRideRepos, BikeRideOrganizerRepository bikeRideOrganizerRepos) {
+    public BikeRideService(BikeRideRepository bikeRideRepos, BikeRideOrganizerRepository bikeRideOrganizerRepos, AuthorizationHelper authorizationHelper) {
         this.bikeRideRepos = bikeRideRepos;
         this.bikeRideOrganizerRepos = bikeRideOrganizerRepos;
+        this.authorizationHelper = authorizationHelper;
     }
 
     @Transactional
-    public BikeRideResponseDTO createBikeRide(int bikeRideOrganizerId, BikeRideRequestDTO dto) {
+    public BikeRideResponseDTO createBikeRide(BikeRideRequestDTO dto, UserDetails userDetails) {
+        BikeRideOrganizer bikeRideOrganizer = authorizationHelper.getBikeRideOrganizer(userDetails);
         BikeRide bikeRide = BikeRideDTOMapper.toEntity(dto);
-        bikeRide.setOrganizer(bikeRideOrganizerRepos.findById(bikeRideOrganizerId).orElseThrow(() -> new ResourceNotFoundException("Bike ride organizer " + bikeRideOrganizerId + " does not exist.")));
+        bikeRide.setOrganizer(bikeRideOrganizerRepos.findById(bikeRideOrganizer.getId()).orElseThrow(() -> new ResourceNotFoundException("Bike ride organizer " + bikeRideOrganizer.getId() + " does not exist.")));
         bikeRideRepos.save(bikeRide);
         return returnBikeRideResponseDTO(bikeRide);
     }
 
     @Transactional
-    public BikeRideResponseDTO updateBikeRide(long bikeRideId, BikeRideRequestDTO dto) {
+    public BikeRideResponseDTO updateBikeRide(long bikeRideId, BikeRideRequestDTO dto, UserDetails userDetails) {
+        authorizationHelper.checkUserOwnsBikeRide(bikeRideId, userDetails);
         BikeRide bikeRide = getBikeRideByBikeRideId(bikeRideId);
         BikeRide bikeRideUpdate = BikeRideDTOMapper.toEntity(dto);
         bikeRide.setTitle(bikeRideUpdate.getTitle());
@@ -100,7 +106,8 @@ public class BikeRideService {
     }
 
     @Transactional
-    public void deleteBikeRide(long bikeRideId) {
+    public void deleteBikeRide(long bikeRideId, UserDetails userDetails) {
+        authorizationHelper.checkUserOwnsBikeRide(bikeRideId, userDetails);
         bikeRideRepos.delete(getBikeRideByBikeRideId(bikeRideId));
     }
 

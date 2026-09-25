@@ -8,6 +8,8 @@ import nl.novi.youbike_api.dto.CyclistResponseDTO;
 import nl.novi.youbike_api.dto.value_object.CityCountryLocationDTO;
 import nl.novi.youbike_api.service.CyclistService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -31,14 +33,18 @@ public class CyclistController {
         return ResponseEntity.created(uri).body(responseDTO);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<CyclistResponseDTO> updateCyclist(@PathVariable int id, @Valid @RequestBody CyclistRequestDTO dto) {
-        return ResponseEntity.ok(cyclistService.updateCyclist(id, dto));
+    @PutMapping()
+    public ResponseEntity<CyclistResponseDTO> updateCyclist(
+            @Valid @RequestBody CyclistRequestDTO dto,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(cyclistService.updateCyclist(dto, userDetails));
     }
 
-    @PatchMapping("/{id}/location")
-    public ResponseEntity<CyclistResponseDTO> updateCyclistCityCountryLocation(@PathVariable int id, @Valid @RequestBody CityCountryLocationDTO dto) {
-        return ResponseEntity.ok(cyclistService.updateCyclistCityCountryLocation(id, dto));
+    @PatchMapping("/location")
+    public ResponseEntity<CyclistResponseDTO> updateCyclistCityCountryLocation(
+            @Valid @RequestBody CityCountryLocationDTO dto,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(cyclistService.updateCyclistCityCountryLocation(dto, userDetails));
     }
 
     @GetMapping("/{id}")
@@ -51,9 +57,9 @@ public class CyclistController {
         return ResponseEntity.ok(cyclistService.getAllCyclists());
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCyclist(@PathVariable int id) throws IOException {
-        cyclistService.deleteCyclist(id);
+    @DeleteMapping()
+    public ResponseEntity<Void> deleteCyclist(@AuthenticationPrincipal UserDetails userDetails) throws IOException {
+        cyclistService.deleteCyclist(userDetails);
         return ResponseEntity.noContent().build();
     }
 }

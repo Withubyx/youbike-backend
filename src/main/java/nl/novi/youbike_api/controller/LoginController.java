@@ -39,10 +39,10 @@ public class LoginController {
         try {
             Authentication auth = authManager.authenticate(up);
 
-            var ud = (UserDetails) auth.getPrincipal();
-            String token = jwtService.generateToken(ud);
-
             UserLoginResponseDTO userLoginResponseDTO = userService.fillUserLoginResponseDTO(userLoginRequestDTO.getEmail());
+
+            var ud = (UserDetails) auth.getPrincipal();
+            String token = jwtService.generateToken(ud, userLoginResponseDTO);
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)

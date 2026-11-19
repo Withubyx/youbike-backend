@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import nl.novi.youbike_api.dto.UserLoginResponseDTO;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -44,13 +45,21 @@ public class JwtService {
             return extractExpiration(token).before(new Date());
         }
 
-        public String generateToken(UserDetails userDetails) {
+        public String generateToken(UserDetails userDetails, UserLoginResponseDTO dto) {
             Map<String, Object> claims = new HashMap<>();
+            claims.put("role", dto.getRole().name());
+            if (dto.getCyclistId() != null) {
+                claims.put("cyclist_id", dto.getCyclistId());
+            }
+            if (dto.getBikeCompanyId() != null) {
+                claims.put("bike_company_id", dto.getBikeCompanyId());
+            }
             return createToken(claims, userDetails.getUsername());
         }
+
         private String createToken(Map<String, Object> claims, String
                 subject) {
-            long validPeriod = 1000L * 60 * 60 * 24 * 50; // 50 days in ms
+            long validPeriod = 1000L * 60 * 60 * 24 * 8; // 8 days in ms
             long currentTime = System.currentTimeMillis();
             return Jwts.builder()
                     .setClaims(claims)
